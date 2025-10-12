@@ -4,14 +4,10 @@ USER root
 RUN apt-get update && apt-get install -y graphviz openjdk-11-jdk
 USER $NB_UID
 
-# Copy notebooks first
+# Copy notebooks
 COPY --chown=1000:100 notebooks/ /home/jovyan/work/
 
-# Copy and make postBuild executable (if it exists)
-COPY binder/postBuild /tmp/postBuild
-RUN if [ -f /tmp/postBuild ]; then chmod +x /tmp/postBuild && /tmp/postBuild; fi
-
-# Install almond directly in Dockerfile (more reliable)
+# Install almond directly in Dockerfile
 RUN curl -Lo coursier https://git.io/coursier-cli && \
     chmod +x coursier && \
     ./coursier bootstrap \
@@ -22,5 +18,9 @@ RUN curl -Lo coursier https://git.io/coursier-cli && \
     ./almond --install --id scala213 --display-name "Scala (2.13)" && \
     rm almond coursier
 
+# Create missing directories to avoid notebook errors
+RUN mkdir -p /home/jovyan/work/{scala-tour,scalameta,visualization,TransmogrifAI}
+
 # Verify installation
-RUN jupyter kernelspec list
+RUN jupyter kernelspec list && \
+    echo "Almond installation successful!"
