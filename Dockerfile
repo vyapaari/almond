@@ -7,20 +7,18 @@ USER $NB_UID
 # Copy notebooks
 COPY --chown=1000:100 notebooks/ /home/jovyan/work/
 
-# Install almond directly in Dockerfile
+# Install almond with known working versions
 RUN curl -Lo coursier https://git.io/coursier-cli && \
     chmod +x coursier && \
     ./coursier bootstrap \
       -r jitpack \
-      -i user -I user:sh.almond:scala-kernel-api_2.13.11:0.13.11 \
-      sh.almond:scala-kernel_2.13.11:0.13.11 \
+      -i user -I user:sh.almond:scala-kernel-api_2.13.6:0.10.9 \
+      sh.almond:scala-kernel_2.13.6:0.10.9 \
       -o almond && \
-    ./almond --install --id scala213 --display-name "Scala (2.13)" && \
+    ./almond --install --id scala213 --display-name "Scala" && \
     rm almond coursier
 
-# Create missing directories to avoid notebook errors
+# Create directories
 RUN mkdir -p /home/jovyan/work/{scala-tour,scalameta,visualization,TransmogrifAI}
 
-# Verify installation
-RUN jupyter kernelspec list && \
-    echo "Almond installation successful!"
+RUN jupyter kernelspec list
