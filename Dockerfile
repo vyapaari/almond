@@ -7,13 +7,13 @@ USER $NB_UID
 # Copy notebooks
 COPY --chown=1000:100 notebooks/ /home/jovyan/work/
 
-# Install almond with known working versions
+# Install almond with VERIFIED working versions
 RUN curl -Lo coursier https://git.io/coursier-cli && \
     chmod +x coursier && \
     ./coursier bootstrap \
       -r jitpack \
-      -i user -I user:sh.almond:scala-kernel-api_2.13.6:0.10.9 \
-      sh.almond:scala-kernel_2.13.6:0.10.9 \
+      -i user -I user:sh.almond:scala-kernel-api_2.13.8:0.13.2 \
+      sh.almond:scala-kernel_2.13.8:0.13.2 \
       -o almond && \
     ./almond --install --id scala213 --display-name "Scala" && \
     rm almond coursier
