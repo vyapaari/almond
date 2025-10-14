@@ -4,10 +4,7 @@ USER root
 RUN apt-get update && apt-get install -y graphviz openjdk-11-jdk
 USER $NB_UID
 
-# Copy notebooks
-COPY --chown=1000:100 notebooks/ /home/jovyan/work/
-
-# Install almond with VERIFIED working versions
+# Install almond
 RUN curl -Lo coursier https://git.io/coursier-cli && \
     chmod +x coursier && \
     ./coursier bootstrap \
@@ -18,7 +15,10 @@ RUN curl -Lo coursier https://git.io/coursier-cli && \
     ./almond --install --id scala213 --display-name "Scala" && \
     rm almond coursier
 
-# Create directories
-RUN mkdir -p /home/jovyan/work/{scala-tour,scalameta,visualization,TransmogrifAI}
+# Copy notebooks to Jupyter root
+COPY --chown=1000:100 notebooks/ /home/jovyan/
+
+# Create subdirectories
+RUN mkdir -p /home/jovyan/{scala-tour,scalameta,visualization,TransmogrifAI}
 
 RUN jupyter kernelspec list
