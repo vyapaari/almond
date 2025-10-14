@@ -1,10 +1,18 @@
 FROM jupyter/scipy-notebook:latest
 
 USER root
-RUN apt-get update && apt-get install -y graphviz openjdk-11-jdk
+
+# Install only essential dependencies
+RUN apt-get update && apt-get install -y \
+    openjdk-11-jdk \
+    graphviz \
+    python3 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 USER $NB_UID
 
-# Install almond
+# Install almond kernel
 RUN curl -Lo coursier https://git.io/coursier-cli && \
     chmod +x coursier && \
     ./coursier bootstrap \
@@ -15,10 +23,5 @@ RUN curl -Lo coursier https://git.io/coursier-cli && \
     ./almond --install --id scala213 --display-name "Scala" && \
     rm almond coursier
 
-# Copy notebooks to Jupyter root
 COPY --chown=1000:100 notebooks/ /home/jovyan/
-
-# Create subdirectories
 RUN mkdir -p /home/jovyan/{scala-tour,scalameta,visualization,TransmogrifAI}
-
-RUN jupyter kernelspec list
