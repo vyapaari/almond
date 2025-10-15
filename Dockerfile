@@ -39,4 +39,5 @@ COPY --chown=$NB_UID:$NB_GID scripts/ /home/jovyan/scripts/
 RUN mkdir -p /home/jovyan/workspace
 
 # Start both Jupyter (port 8888) and VS Code (port 8080)
-CMD ["sh", "-c", "code-server --auth none --bind-addr 0.0.0.0:8080 /home/jovyan/workspace & start-notebook.sh"]
+#CMD ["sh", "-c", "code-server --auth none --bind-addr 0.0.0.0:8080 /home/jovyan/workspace & start-notebook.sh"]
+CMD ["sh", "-c", "nohup code-server --auth none --bind-addr 0.0.0.0:8080 /home/jovyan/workspace > /tmp/code-server.log 2>&1 & start-notebook.sh"]
