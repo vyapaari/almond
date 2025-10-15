@@ -1,20 +1,12 @@
-FROM ubuntu:22.04
+FROM jupyter/scipy-notebook:latest
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV USER=jovyan
-ENV HOME=/home/jovyan
+USER root
 
-# Install ONLY environment essentials
+# Install AI platform essentials + keep some Scala dependencies for now
 RUN apt-get update && apt-get install -y \
-    wget \
+    openjdk-11-jdk \
+    graphviz \
     unzip \
-    curl \
-    git \
-    python3 \
-    python3-pip \
-    sudo \
-    jq \
-    procps \
     proot \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -23,21 +15,27 @@ RUN apt-get update && apt-get install -y \
 RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH="/root/.bun/bin:$PATH"
 
-# Install code-server
+# Install code-server for VS Code
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
-# Create user
-RUN useradd -m -s /bin/bash -u 1000 jovyan && \
-    mkdir -p /home/jovyan/workspace && \
-    chown -R jovyan:jovyan /home/jovyan
+USER $NB_UID
 
-USER jovyan
-WORKDIR /home/jovyan
+# Keep Almond kernel for now (Binder compatibility)
+RUN curl -Lo coursier https://git.io/coursier-cli && \
+    chmod +x coursier && \
+    ./coursier bootstrap \
+      -r jitpack \
+      -i user -I user:sh.almond:scala-kernel-api_2.13.8:0.13.2 \
+      sh.almond:scala-kernel_2.13.8:0.13.2 \
+      -o almond && \
+    ./almund --install --id scala213 --display-name "Scala" && \
+    rm almond coursier
 
-# Copy all scripts at once
-COPY --chown=jovyan:jovyan scripts/ /home/jovyan/scripts/
+# Copy our AI platform scripts
+COPY --chown=$NB_UID:$NB_GID scripts/ /home/jovyan/scripts/
 
-EXPOSE 8080
+# Create workspace for AI platform
+RUN mkdir -p /home/jovyan/workspace
 
-# Simple start - just VS Code
-CMD ["code-server", "--auth", "none", "--bind-addr", "0.0.0.0:8080", "/home/jovyan/workspace"]
+# Start both Jupyter (port 8888) and VS Code (port 8080)
+CMD ["sh", "-c", "code-server --auth none --bind-addr 0.0.0.0:8080 /home/jovyan/workspace & start-notebook.sh"]
