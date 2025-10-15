@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     sudo \
     jq \
     procps \
-    proot \                   # ← FIXED: Inside install list
+    proot \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
