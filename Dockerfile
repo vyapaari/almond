@@ -1,27 +1,42 @@
-FROM jupyter/scipy-notebook:latest
+FROM ubuntu:22.04
 
-USER root
+ENV DEBIAN_FRONTEND=noninteractive
+ENV USER=jovyan
+ENV HOME=/home/jovyan
 
-# Install only essential dependencies
+# Install ONLY environment essentials
 RUN apt-get update && apt-get install -y \
-    openjdk-11-jdk \
-    graphviz \
+    wget \
+    curl \
+    git \
     python3 \
+    python3-pip \
+    sudo \
+    jq \
+    procps \
+    proot \                   # ← FIXED: Inside install list
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-USER $NB_UID
+# Install Bun
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:$PATH"
 
-# Install almond kernel
-RUN curl -Lo coursier https://git.io/coursier-cli && \
-    chmod +x coursier && \
-    ./coursier bootstrap \
-      -r jitpack \
-      -i user -I user:sh.almond:scala-kernel-api_2.13.8:0.13.2 \
-      sh.almond:scala-kernel_2.13.8:0.13.2 \
-      -o almond && \
-    ./almond --install --id scala213 --display-name "Scala" && \
-    rm almond coursier
+# Install code-server
+RUN curl -fsSL https://code-server.dev/install.sh | sh
 
-COPY --chown=1000:100 notebooks/ /home/jovyan/
-RUN mkdir -p /home/jovyan/{scala-tour,scalameta,visualization,TransmogrifAI}
+# Create user
+RUN useradd -m -s /bin/bash -u 1000 jovyan && \
+    mkdir -p /home/jovyan/workspace && \
+    chown -R jovyan:jovyan /home/jovyan
+
+USER jovyan
+WORKDIR /home/jovyan
+
+# Copy all scripts at once
+COPY --chown=jovyan:jovyan scripts/ /home/jovyan/scripts/
+
+EXPOSE 8080
+
+# Simple start - just VS Code
+CMD ["code-server", "--auth", "none", "--bind-addr", "0.0.0.0:8080", "/home/jovyan/workspace"]
