@@ -29,7 +29,7 @@ RUN curl -Lo coursier https://git.io/coursier-cli && \
       -i user -I user:sh.almond:scala-kernel-api_2.13.8:0.13.2 \
       sh.almond:scala-kernel_2.13.8:0.13.2 \
       -o almond && \
-    ./almund --install --id scala213 --display-name "Scala" && \
+    ./almond --install --id scala213 --display-name "Scala" && \
     rm almond coursier
 
 # Copy our AI platform scripts
