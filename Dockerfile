@@ -7,6 +7,8 @@ ENV HOME=/home/jovyan
 # Install ONLY environment essentials
 RUN apt-get update && apt-get install -y \
     wget \
+    unzip \
+    docker \
     curl \
     git \
     python3 \
