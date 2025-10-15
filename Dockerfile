@@ -8,7 +8,6 @@ ENV HOME=/home/jovyan
 RUN apt-get update && apt-get install -y \
     wget \
     unzip \
-    docker \
     curl \
     git \
     python3 \
