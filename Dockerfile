@@ -6,6 +6,7 @@ USER root
 RUN apt-get update && apt-get install -y \
     openjdk-11-jdk \
     graphviz \
+    docker \
     unzip \
     proot \
     && apt-get clean \
