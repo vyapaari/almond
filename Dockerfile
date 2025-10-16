@@ -5,6 +5,7 @@ USER root
 # Install AI platform essentials + keep some Scala dependencies for now
 RUN apt-get update && apt-get install -y \
     proot \
+    xclip
     openjdk-11-jdk \
     graphviz \
     unzip \
