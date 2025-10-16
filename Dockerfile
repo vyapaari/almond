@@ -4,11 +4,11 @@ USER root
 
 # Install AI platform essentials + keep some Scala dependencies for now
 RUN apt-get update && apt-get install -y \
+    proot \
     openjdk-11-jdk \
     graphviz \
-    docker \
     unzip \
-    proot \
+    docker \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
