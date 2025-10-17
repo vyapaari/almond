@@ -9,4 +9,5 @@ dependencies:
     - jupyter-server-proxy
 environment: 
   - SIAB_PASSWORD=qwert
-  - SIAB_SUDO=true    
+  - SIAB_SUDO=true
+  - SIAB_USER=Jovyan    

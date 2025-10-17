@@ -47,6 +47,8 @@ RUN curl -Lo coursier https://git.io/coursier-cli && \
 # Copy our AI platform scripts
 COPY --chown=$NB_UID:$NB_GID scripts/ ~/scripts/
 
+USER root
+
 # Create workspace for AI platform and added vscode icon
 RUN mkdir -p ~/workspace && \
     curl -s -o /etc/jupyter/vscode.svg https://code.visualstudio.com/assets/images/code-stable.png  
