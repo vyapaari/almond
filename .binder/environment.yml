@@ -2,13 +2,8 @@ name: base
 channels:
   - conda-forge
 dependencies:
-  - openssh-client
   - code-server
   - jupyterlab
   - pip
-  - proot
-  - xclip
-  - graphviz
-  - unzip
   - pip:
     - jupyter-server-proxy
