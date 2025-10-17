@@ -1,17 +1,19 @@
 #!/bin/bash
 echo "🚀 Starting Multi-Service Environment..."
 
-# Start VS Code on port 8090 in background
-echo "Starting VS Code on port 8090..."
-#code-server --auth none --bind-addr 0.0.0.0:8090 /home/jovyan/workspace > /tmp/code-server.log 2>&1 &
+# Check and start VS Code if not running
+if ! pgrep -f "code-server.*8090" > /dev/null; then
+    echo "Starting VS Code on port 8090..."
+    code-server --auth none --bind-addr 0.0.0.0:8090 /home/jovyan/workspace > /tmp/code-server.log 2>&1 &
+    VS_CODE_PID=$!
+    echo "✅ VS Code started (PID: $VS_CODE_PID)"
+else
+    echo "✅ VS Code already running on 8090"
+fi
 
-# Start JupyterLab (original Binder command)
+# Start JupyterLab (Binder's main command)
 echo "Starting JupyterLab..."
-exec "$@" &
-
-echo "✅ Both services starting..."
-echo "JupyterLab: will be available at main URL"
-echo "VS Code: will be available at /proxy/8090/"
+exec "$@"
 
 # Keep container alive
 wait
