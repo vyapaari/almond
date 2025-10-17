@@ -3,7 +3,7 @@ echo "🚀 Starting Multi-Service Environment..."
 
 # Start VS Code on port 8090 in background
 echo "Starting VS Code on port 8090..."
-code-server --auth none --bind-addr 0.0.0.0:8090 /home/jovyan/workspace > /tmp/code-server.log 2>&1 &
+#code-server --auth none --bind-addr 0.0.0.0:8090 /home/jovyan/workspace > /tmp/code-server.log 2>&1 &
 
 # Start JupyterLab (original Binder command)
 echo "Starting JupyterLab..."
