@@ -56,4 +56,4 @@ USER $NB_UID
 WORKDIR /home/jovyan
 
 # Start both services
-CMD code-server --auth none --port 8080 --bind-addr 0.0.0.0:8080 /home/jovyan/workspace & jupyter-lab --ip=0.0.0.0 --port=8888 --NotebookApp.token=''
+CMD code-server --auth none --bind-addr 0.0.0.0:8090 /home/jovyan/workspace & jupyter-lab --ip=0.0.0.0 --port=8888 --NotebookApp.token=''
