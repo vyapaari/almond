@@ -9,7 +9,6 @@ RUN apt-get update && apt-get install -y \
     openjdk-11-jdk \
     graphviz \
     unzip \
-    docker \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -25,6 +24,31 @@ RUN pip install jupyter-server-proxy
 
 # Enable the proxy extension
 RUN jupyter server extension enable jupyter-server-proxy --py
+
+# Download VS Code icon for launcher FIRST (before config)
+RUN curl -s -o /etc/jupyter/vscode.svg https://code.visualstudio.com/assets/images/code-stable.png
+
+# ✅ FIXED: Add Jupyter config with proper commas
+RUN mkdir -p /etc/jupyter && \
+    cat > /etc/jupyter/jupyter_server_config.py << 'EOF'
+c.ServerProxy.servers = {
+    'vscode': {
+        'command': ['code-server', '--auth', 'none', '--bind-addr', '0.0.0.0:{port}'],
+        'launcher_entry': {
+            'title': 'VS Code',                    # ✅ COMMA ADDED
+            'icon_path': '/etc/jupyter/vscode.svg'
+        },
+        'port': 8080,                              # ✅ COMMA ADDED
+        'absolute_url': False,
+        'timeout': 30,                             # ✅ COMMA ADDED
+        'new_browser_tab': True
+    }
+}
+
+# Additional proxy settings
+c.ServerApp.allow_remote_access = True
+c.ServerApp.allow_origin_pat = '.*'
+EOF
 
 USER $NB_UID
 
@@ -42,35 +66,12 @@ RUN curl -Lo coursier https://git.io/coursier-cli && \
 # Copy our AI platform scripts
 COPY --chown=$NB_UID:$NB_GID scripts/ /home/jovyan/scripts/
 
-# Add this before the final CMD or USER jovyan line
-RUN mkdir -p /etc/jupyter && \
-    cat > /etc/jupyter/jupyter_server_config.py << 'EOF'
-c.ServerProxy.servers = {
-    'vscode': {
-        'command': ['code-server', '--auth', 'none', '--bind-addr', '0.0.0.0:{port}'],
-        'launcher_entry': {
-            'title': 'VS Code'
-            'icon_path': '/etc/jupyter/vscode.svg'
-        },
-        'port': 8080,
-        'absolute_url': False,
-        'timeout': 30
-        'new_browser_tab': True
-    }
-}
-# Additional proxy settings
-c.ServerApp.allow_remote_access = True
-c.ServerApp.allow_origin_pat = '.*'
-EOF
-
 # Create workspace for AI platform
 RUN mkdir -p /home/jovyan/workspace
 
-# Download VS Code icon for launcher
-RUN curl -s -o /etc/jupyter/vscode.svg https://code.visualstudio.com/assets/images/code-stable.png
-USER jovyan
-RUN echo 'code-server --auth none --port 8080 --bind-addr 0.0.0.0:8080 &' >> ~/.bashrc
+# ✅ FIXED: Use proper USER and CMD
+USER $NB_UID
+WORKDIR /home/jovyan
 
-# Start both Jupyter (port 8888) and VS Code (port 8080)
-#CMD ["sh", "-c", "nohup code-server --auth none --bind-addr 0.0.0.0:8080 /home/jovyan/workspace > /tmp/code-server.log 2>&1 & start-notebook.sh"]
-CMD code-server --auth none --port 8080 --bind-addr 0.0.0.0:8080 & jupyter-lab --ip=0.0.0.0 --port=8888 --NotebookApp.token='' & >> ~/.bashrc
+# ✅ FIXED: Simple CMD that starts both services
+CMD code-server --auth none --port 8080 --bind-addr 0.0.0.0:8080 /home/jovyan/workspace & jupyter-lab --ip=0.0.0.0 --port=8888 --NotebookApp.token=''
