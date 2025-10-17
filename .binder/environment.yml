@@ -1,0 +1,9 @@
+name: base
+channels:
+  - conda-forge
+dependencies:
+  - code-server
+  - jupyterlab
+  - pip
+  - pip:
+    - jupyter-server-proxy
