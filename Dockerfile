@@ -6,7 +6,6 @@ USER root
 RUN apt-get update && apt-get install -y \
     proot \
     xclip \
-    openjdk-11-jdk \
     graphviz \
     unzip \
     && apt-get clean \
@@ -56,4 +55,7 @@ USER $NB_UID
 WORKDIR /home/jovyan
 
 # Start both services
-CMD code-server --auth none --bind-addr 0.0.0.0:8090 /home/jovyan/workspace & jupyter-lab --ip=0.0.0.0 --port=8888 --NotebookApp.token=''
+# CMD code-server --auth none --bind-addr 0.0.0.0:8090 /home/jovyan/workspace & jupyter-lab --ip=0.0.0.0 --port=8888 --NotebookApp.token=''
+
+# Simple CMD - .binder/start will override this
+CMD ["jupyter-lab", "--ip=0.0.0.0", "--port=8888", "--NotebookApp.token=''"]
