@@ -25,30 +25,12 @@ RUN pip install jupyter-server-proxy
 # Enable the proxy extension
 RUN jupyter server extension enable jupyter-server-proxy --py
 
-# Download VS Code icon for launcher FIRST (before config)
+# Download VS Code icon for launcher
 RUN curl -s -o /etc/jupyter/vscode.svg https://code.visualstudio.com/assets/images/code-stable.png
 
-# ✅ FIXED: Add Jupyter config with proper commas
+# ✅ FIXED: Use printf instead of heredoc to avoid syntax issues
 RUN mkdir -p /etc/jupyter && \
-    cat > /etc/jupyter/jupyter_server_config.py << 'EOF'
-c.ServerProxy.servers = {
-    'vscode': {
-        'command': ['code-server', '--auth', 'none', '--bind-addr', '0.0.0.0:{port}'],
-        'launcher_entry': {
-            'title': 'VS Code',                    # ✅ COMMA ADDED
-            'icon_path': '/etc/jupyter/vscode.svg'
-        },
-        'port': 8080,                              # ✅ COMMA ADDED
-        'absolute_url': False,
-        'timeout': 30,                             # ✅ COMMA ADDED
-        'new_browser_tab': True
-    }
-}
-
-# Additional proxy settings
-c.ServerApp.allow_remote_access = True
-c.ServerApp.allow_origin_pat = '.*'
-EOF
+    printf "c.ServerProxy.servers = {\n  'vscode': {\n    'command': ['code-server', '--auth', 'none', '--bind-addr', '0.0.0.0:{port}'],\n    'launcher_entry': {\n      'title': 'VS Code',\n      'icon_path': '/etc/jupyter/vscode.svg'\n    },\n    'port': 8080,\n    'absolute_url': False,\n    'timeout': 30,\n    'new_browser_tab': True\n  }\n}\n\nc.ServerApp.allow_remote_access = True\nc.ServerApp.allow_origin_pat = '.*'\n" > /etc/jupyter/jupyter_server_config.py
 
 USER $NB_UID
 
@@ -73,5 +55,5 @@ RUN mkdir -p /home/jovyan/workspace
 USER $NB_UID
 WORKDIR /home/jovyan
 
-# ✅ FIXED: Simple CMD that starts both services
+# Start both services
 CMD code-server --auth none --port 8080 --bind-addr 0.0.0.0:8080 /home/jovyan/workspace & jupyter-lab --ip=0.0.0.0 --port=8888 --NotebookApp.token=''
