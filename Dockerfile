@@ -48,11 +48,11 @@ RUN curl -Lo coursier https://git.io/coursier-cli && \
 COPY --chown=$NB_UID:$NB_GID scripts/ /home/jovyan/scripts/
 
 # Create workspace for AI platform and added vscode icon
-RUN mkdir -p /home/jovyan/workspace && \
+CMD mkdir -p /home/jovyan/workspace && \
     curl -s -o /etc/jupyter/vscode.svg https://code.visualstudio.com/assets/images/code-stable.png  
 
 # Create SSH directory structure
-RUN mkdir -p /home/jovyan/.ssh && \
+CMD mkdir -p /home/jovyan/.ssh && \
     chmod 700 /home/jovyan/.ssh && \
     touch /home/jovyan/.ssh/authorized_keys && \
     chmod 600 /home/jovyan/.ssh/authorized_keys
