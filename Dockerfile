@@ -54,8 +54,24 @@ RUN curl -Lo coursier https://git.io/coursier-cli && \
 # Copy our AI platform scripts
 COPY --chown=$NB_UID:$NB_GID scripts/ /home/jovyan/scripts/
 
+# Add this before the final CMD or USER jovyan line
+RUN mkdir -p /etc/jupyter && \
+    cat > /etc/jupyter/jupyter_server_config.py << 'EOF'
+c.ServerProxy.servers = {
+    'vscode': {
+        'command': ['code-server', '--auth', 'none', '--bind-addr', '0.0.0.0:{port}'],
+        'port': 8080
+    }
+}
+EOF
+
 # Create workspace for AI platform
 RUN mkdir -p /home/jovyan/workspace
 
+# Optional: Add this if you want code-server to auto-start
+
+USER jovyan
+RUN echo 'code-server --auth none --port 8080 --bind-addr 0.0.0.0:8080 &' >> ~/.bashrc
+
 # Start both Jupyter (port 8888) and VS Code (port 8080)
-CMD ["sh", "-c", "nohup code-server --auth none --bind-addr 0.0.0.0:8080 /home/jovyan/workspace > /tmp/code-server.log 2>&1 & start-notebook.sh"]
+#CMD ["sh", "-c", "nohup code-server --auth none --bind-addr 0.0.0.0:8080 /home/jovyan/workspace > /tmp/code-server.log 2>&1 & start-notebook.sh"]
