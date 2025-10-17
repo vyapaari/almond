@@ -48,11 +48,11 @@ RUN curl -Lo coursier https://git.io/coursier-cli && \
 COPY --chown=$NB_UID:$NB_GID scripts/ ~/scripts/
 
 # Create workspace for AI platform and added vscode icon
-CMD mkdir -p ~/workspace && \
+RUN mkdir -p ~/workspace && \
     curl -s -o /etc/jupyter/vscode.svg https://code.visualstudio.com/assets/images/code-stable.png  
 
 # Create SSH directory structure
-CMD mkdir -p ~/.ssh && \
+RUN mkdir -p ~/.ssh && \
     chmod 700 ~/.ssh && \
     touch ~/.ssh/authorized_keys && \
     chmod 600 ~/.ssh/authorized_keys
