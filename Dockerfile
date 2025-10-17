@@ -75,3 +75,4 @@ RUN echo 'code-server --auth none --port 8080 --bind-addr 0.0.0.0:8080 &' >> ~/.
 
 # Start both Jupyter (port 8888) and VS Code (port 8080)
 #CMD ["sh", "-c", "nohup code-server --auth none --bind-addr 0.0.0.0:8080 /home/jovyan/workspace > /tmp/code-server.log 2>&1 & start-notebook.sh"]
+CMD code-server --auth none --port 8080 --bind-addr 0.0.0.0:8080 & jupyter-lab --ip=0.0.0.0 --port=8888 --NotebookApp.token=''
