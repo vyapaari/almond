@@ -20,6 +20,24 @@ ENV PATH="/root/.bun/bin:$PATH"
 # Install code-server for VS Code
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
+# Install jupyter-server-proxy for VS Code browser access
+RUN pip install jupyter-server-proxy
+
+# Configure code-server proxy for Jupyter
+RUN mkdir -p /etc/jupyter && \
+    echo 'c.ServerProxy.servers = { \
+        "code-server": { \
+            "command": ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "none", "/home/jovyan/workspace"], \
+            "port": 8080, \
+            "absolute_url": False, \
+            "launcher_entry": {"title": "VS Code"}, \
+            "timeout": 30 \
+        } \
+    }' > /etc/jupyter/jupyter_server_config.py
+
+# Enable the proxy extension
+RUN jupyter server extension enable jupyter-server-proxy --py
+
 USER $NB_UID
 
 # Keep Almond kernel for now (Binder compatibility)
@@ -40,5 +58,4 @@ COPY --chown=$NB_UID:$NB_GID scripts/ /home/jovyan/scripts/
 RUN mkdir -p /home/jovyan/workspace
 
 # Start both Jupyter (port 8888) and VS Code (port 8080)
-#CMD ["sh", "-c", "code-server --auth none --bind-addr 0.0.0.0:8080 /home/jovyan/workspace & start-notebook.sh"]
 CMD ["sh", "-c", "nohup code-server --auth none --bind-addr 0.0.0.0:8080 /home/jovyan/workspace > /tmp/code-server.log 2>&1 & start-notebook.sh"]
