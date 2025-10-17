@@ -23,18 +23,6 @@ RUN curl -fsSL https://code-server.dev/install.sh | sh
 # Install jupyter-server-proxy for VS Code browser access
 RUN pip install jupyter-server-proxy
 
-# Configure code-server proxy for Jupyter
-RUN mkdir -p /etc/jupyter && \
-    echo 'c.ServerProxy.servers = { \
-        "code-server": { \
-            "command": ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "none", "/home/jovyan/workspace"], \
-            "port": 8080, \
-            "absolute_url": False, \
-            "launcher_entry": {"title": "VS Code"}, \
-            "timeout": 30 \
-        } \
-    }' > /etc/jupyter/jupyter_server_config.py
-
 # Enable the proxy extension
 RUN jupyter server extension enable jupyter-server-proxy --py
 
@@ -60,19 +48,29 @@ RUN mkdir -p /etc/jupyter && \
 c.ServerProxy.servers = {
     'vscode': {
         'command': ['code-server', '--auth', 'none', '--bind-addr', '0.0.0.0:{port}'],
-        'port': 8080
+        'launcher_entry': {
+            'title': 'VS Code'
+            'icon_path': '/etc/jupyter/vscode.svg'
+        },
+        'port': 8080,
+        'absolute_url': False,
+        'timeout': 30
+        'new_browser_tab': True
     }
 }
+# Additional proxy settings
+c.ServerApp.allow_remote_access = True
+c.ServerApp.allow_origin_pat = '.*'
 EOF
 
 # Create workspace for AI platform
 RUN mkdir -p /home/jovyan/workspace
 
-# Optional: Add this if you want code-server to auto-start
-
+# Download VS Code icon for launcher
+RUN curl -s -o /etc/jupyter/vscode.svg https://code.visualstudio.com/assets/images/code-stable.png
 USER jovyan
 RUN echo 'code-server --auth none --port 8080 --bind-addr 0.0.0.0:8080 &' >> ~/.bashrc
 
 # Start both Jupyter (port 8888) and VS Code (port 8080)
 #CMD ["sh", "-c", "nohup code-server --auth none --bind-addr 0.0.0.0:8080 /home/jovyan/workspace > /tmp/code-server.log 2>&1 & start-notebook.sh"]
-CMD code-server --auth none --port 8080 --bind-addr 0.0.0.0:8080 & jupyter-lab --ip=0.0.0.0 --port=8888 --NotebookApp.token=''
+CMD code-server --auth none --port 8080 --bind-addr 0.0.0.0:8080 & jupyter-lab --ip=0.0.0.0 --port=8888 --NotebookApp.token='' & >> ~/.bashrc
