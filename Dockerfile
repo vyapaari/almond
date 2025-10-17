@@ -45,22 +45,22 @@ RUN curl -Lo coursier https://git.io/coursier-cli && \
     rm almond coursier
 
 # Copy our AI platform scripts
-COPY --chown=$NB_UID:$NB_GID scripts/ /home/jovyan/scripts/
+COPY --chown=$NB_UID:$NB_GID scripts/ ~/scripts/
 
 # Create workspace for AI platform and added vscode icon
-CMD mkdir -p /home/jovyan/workspace && \
+CMD mkdir -p ~/workspace && \
     curl -s -o /etc/jupyter/vscode.svg https://code.visualstudio.com/assets/images/code-stable.png  
 
 # Create SSH directory structure
-CMD mkdir -p /home/jovyan/.ssh && \
-    chmod 700 /home/jovyan/.ssh && \
-    touch /home/jovyan/.ssh/authorized_keys && \
-    chmod 600 /home/jovyan/.ssh/authorized_keys
+CMD mkdir -p ~/.ssh && \
+    chmod 700 ~/.ssh && \
+    touch ~/.ssh/authorized_keys && \
+    chmod 600 ~/.ssh/authorized_keys
 
-WORKDIR /home/jovyan
+WORKDIR ~/
 
 # Start both services
- CMD code-server --auth none --bind-addr 0.0.0.0:8090 /home/jovyan/workspace & jupyter-lab --ip=0.0.0.0 --port=8888 --NotebookApp.token=''
+ CMD code-server --auth none --bind-addr 0.0.0.0:8090 ~/workspace & jupyter-lab --ip=0.0.0.0 --port=8888 --NotebookApp.token=''
 # Add to Dockerfile (before CMD)
 
 # Simple CMD - .binder/start will override this
