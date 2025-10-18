@@ -2,6 +2,18 @@ FROM jupyter/scipy-notebook:latest
 
 USER root
 
+RUN mkdir -p ~/workspace
+
+# Create workspace for AI platform and added vscode icon
+RUN mkdir -p ~/workspace && \
+    curl -s -o /etc/jupyter/vscode.svg https://code.visualstudio.com/assets/images/code-stable.png  
+
+# Create SSH directory structure
+RUN mkdir -p ~/.ssh && \
+    chmod 700 ~/.ssh && \
+    touch ~/.ssh/authorized_keys && \
+    chmod 600 ~/.ssh/authorized_keys
+
 # Install AI platform essentials + keep some Scala dependencies for now
 RUN apt-get update && apt-get install -y \
     proot \
@@ -47,18 +59,7 @@ RUN curl -Lo coursier https://git.io/coursier-cli && \
 # Copy our AI platform scripts
 COPY --chown=$NB_UID:$NB_GID scripts/ ~/scripts/
 
-USER root
-
-# Create workspace for AI platform and added vscode icon
-RUN mkdir -p ~/workspace && \
-    curl -s -o /etc/jupyter/vscode.svg https://code.visualstudio.com/assets/images/code-stable.png  
-
-# Create SSH directory structure
-RUN mkdir -p ~/.ssh && \
-    chmod 700 ~/.ssh && \
-    touch ~/.ssh/authorized_keys && \
-    chmod 600 ~/.ssh/authorized_keys
-
+USER Jovyan
 WORKDIR ~/
 
 # Start both services
