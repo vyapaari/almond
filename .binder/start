@@ -1,5 +1,6 @@
 #!/bin/bash
 echo "🚀 Starting Multi-Service Environment..."
+mkdir -p ~/workspace
 
 # Check and start VS Code if not running
 if ! pgrep -f "code-server.*8090" > /dev/null; then
@@ -23,6 +24,3 @@ echo "=== KEEPING SESSION ACTIVE ==="
 while true; do echo "$(date): Session active"; sleep 30; done &
 KEEP_ALIVE_PID=$!
 echo "Keep-alive process started: PID $KEEP_ALIVE_PID"
-
-mkdir -p ~/workspace
-ls -la 
